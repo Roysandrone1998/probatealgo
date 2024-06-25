@@ -7,6 +7,8 @@ const productRepository = new ProductRepository();
 const { generateUniqueCode, calcularTotal } = require("../utils/cartutils.js");
 const EmailManager = require("../services/email.js");
 const emailManager = new EmailManager();
+const TicketRepository = require("../repositories/ticket.repository.js");
+const ticketRepository = new TicketRepository();
 
 
 
@@ -32,27 +34,18 @@ class CartController {
             res.status(500).send("Error");
         }
     }
-
     async agregarProductoEnCarrito(req, res) {
         const cartId = req.params.cid;
         const productId = req.params.pid;
-        const quantity = req.body.quantity || 1;
+        const quantity = parseInt(req.body.quantity) || 1;
+        console.log("Cantidad que recibo:", req.body.quantity);
         try {
-
-            const producto = await productRepository.obtenerProductoPorId(productId);
-
-            if (!producto) {
-                return res.status(404).json({ message: 'Producto no encontrado' });
-            }
-            if (req.user.role === 'premium' && producto.owner === req.user.email) {
-                return res.status(403).json({ message: 'No puedes agregar tu propio producto al carrito.' });
-            }
             await cartRepository.agregarProducto(cartId, productId, quantity);
             const carritoID = (req.user.cart).toString();
 
             res.redirect(`/carts/${carritoID}`)
         } catch (error) {
-            res.status(500).send("Error");
+            res.status(500).send("Error al agregar el producto al carrito");
         }
     }
 
@@ -74,6 +67,7 @@ class CartController {
     async actualizarProductosEnCarrito(req, res) {
         const cartId = req.params.cid;
         const updatedProducts = req.body;
+        // Debes enviar un arreglo de productos en el cuerpo de la solicitud
         try {
             const updatedCart = await cartRepository.actualizarProductosEnCarrito(cartId, updatedProducts);
             res.json(updatedCart);
@@ -119,7 +113,6 @@ class CartController {
     async finalizarCompra(req, res) {
         const cartId = req.params.cid;
         try {
-
             const cart = await cartRepository.obtenerProductosDeCarrito(cartId);
             const products = cart.products;
 
@@ -137,21 +130,18 @@ class CartController {
             }
 
             const userWithCart = await UserModel.findOne({ cart: cartId });
-
-            const ticket = new TicketModel({
+            
+            const ticket = await ticketRepository.crearTicket({
                 code: generateUniqueCode(),
                 purchase_datetime: new Date(),
                 amount: calcularTotal(cart.products),
-                purchaser: userWithCart._id
+                purchaser: userWithCart._id,
+                products: cart.products
             });
-            await ticket.save();
 
-            cart.products = cart.products.filter(item => productosNoDisponibles.some(productId => productId.equals(item.product)));
-            await cart.save();
-
+            await cartRepository.vaciarCarrito(cartId);
 
             await emailManager.enviarCorreoCompra(userWithCart.email, userWithCart.first_name, ticket._id);
-
 
             res.render("checkout", {
                 cliente: userWithCart.first_name,

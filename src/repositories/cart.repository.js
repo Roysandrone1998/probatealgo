@@ -1,4 +1,5 @@
 const CartModel = require("../models/cart.model.js");
+const TicketModel = require("../models/ticket.model.js");
 
 class CartRepository {
     async crearCarrito() {
@@ -36,11 +37,10 @@ class CartRepository {
             }
 
             carrito.markModified("products");
-
             await carrito.save();
             return carrito;
         } catch (error) {
-            throw new Error("Error");
+            throw new Error("Error al agregar el producto al carrito");
         }
     }
 
@@ -119,6 +119,21 @@ class CartRepository {
 
             return cart;
 
+        } catch (error) {
+            throw new Error("Error");
+        }
+    }
+
+    async agregarProductosATicket(products, purchaser) {
+        try {
+            const ticket = new TicketModel({
+                code: generateUniqueCode(),
+                purchase_datetime: new Date(),
+                amount: calcularTotal(products),
+                purchaser
+            });
+            await ticket.save();
+            return ticket;
         } catch (error) {
             throw new Error("Error");
         }

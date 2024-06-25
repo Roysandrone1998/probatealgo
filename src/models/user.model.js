@@ -20,27 +20,41 @@ const userSchema = mongoose.Schema({
 
     password: {
         type: String,
-      //  required: true
+        //required: true
     },
 
     age: {
         type: Number,
         required: true
     },
+
     cart: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart'
     },
+
     role: {
         type: String,
         enum: ['admin', 'usuario', 'premium'],
         default: 'usuario'
     },
+
     resetToken: {
         token: String,
         expiresAt: Date
+    },
+
+    documents: [{
+        name: String,
+        reference: String
+    }], 
+
+    last_connection: {
+        type: Date, 
+        default: Date.now
     }
 });
+
 
 const UserModel = mongoose.model("user", userSchema);
 
