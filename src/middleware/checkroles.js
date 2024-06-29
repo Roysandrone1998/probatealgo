@@ -4,7 +4,7 @@ const checkUserRole = (allowedRoles) => (req, res, next) => {
     const token = req.cookies.coderCookieToken;
 
     if (token) {
-        jwt.verify(token, 'Coder1', (err, decoded) => {
+        jwt.verify(token, 'coderhouse', (err, decoded) => {
             if (err) {
                 res.status(403).send('Acceso denegado. Token inválido.');
             } else {

@@ -12,7 +12,7 @@ router.post("/sessionlogin", async (req, res) => {
 
             if(usuario.password === password) {
                 req.session.login = true; 
-                res.status(200).send({message: "Login correcto! Ma jes tuo seishon!"});
+                res.status(200).send({message: "Login correcto! "});
             }else {
                 res.status(401).send({error: "Contraseña no valida"});
             }

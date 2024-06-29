@@ -70,8 +70,6 @@ class UserController {
             const token = jwt.sign({ user: usuarioEncontrado }, "coderhouse", {
                 expiresIn: "1h"
             });
-            //CUARTA INTEGRADORA.
-            // Actualizar la propiedad last_connection
             usuarioEncontrado.last_connection = new Date();
             await usuarioEncontrado.save();
 
@@ -102,8 +100,6 @@ class UserController {
     async logout(req, res) {
         if (req.user) {
             try {
-                //CUARTA INTEGRADORA
-                // Actualizar la propiedad last_connection
                 req.user.last_connection = new Date();
                 await req.user.save();
             } catch (error) {
@@ -213,7 +209,7 @@ class UserController {
             const tieneDocumentacion = documentacionRequerida.every(doc => userDocuments.includes(doc));
 
             if (!tieneDocumentacion) {
-                return res.status(400).send("El usuario tiene que completar toda la documentacion requerida o no tendra feriados la proxima semana");
+                return res.status(400).send("El usuario tiene que completar toda la documentacion requerida o nunca sera premium");
             }
 
             const nuevoRol = user.role === "usuario" ? "premium" : "usuario";
@@ -221,7 +217,7 @@ class UserController {
             res.send(nuevoRol); 
 
         } catch (error) {
-            res.status(500).send("Error del servidor, Hector tendra gripe dos semanas mas");
+            res.status(500).send("Error del servidor, premium no funca");
         }
     }
 

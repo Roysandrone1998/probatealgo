@@ -1,18 +1,72 @@
 const express = require("express");
 const router = express.Router();
-const UserModel = require("../models/user.model.js");
+const passport = require("passport");
+const UserController = require("../controller/user.controller.js");
+
+const userController = new UserController();
+
+router.post("/register", userController.register);
+router.post("/login", userController.login);
+router.get("/profile", passport.authenticate("jwt", { session: false }), userController.profile);
+router.post("/logout", userController.logout.bind(userController));
+router.get("/admin", passport.authenticate("jwt", { session: false }), userController.admin);
+router.post("/requestPasswordReset", userController.requestPasswordReset); 
+router.post('/reset-password', userController.resetPassword);
 
 
-router.post("/", async (req, res) => {
-    const {first_name, last_name, email, password, age} = req.body;
+router.put("/premium/:uid", userController.cambiarRolPremium);
+
+const UserRepository = require("../repositories/user.repository.js");
+const userRepository = new UserRepository();
+
+const upload = require("../middleware/multer.js");
+
+router.post("/:uid/documents", upload.fields([{ name: "document" }, { name: "products" }, { name: "profile" }]), async (req, res) => {
+    const { uid } = req.params;
+    const uploadedDocuments = req.files;
 
     try {
-        await UserModel.create({first_name, last_name, email, password, age})
-        
-        res.status(200).send({message: "Usuario creado con exito siiiiiiii!!!"});
+        const user = await userRepository.findById(uid);
+
+        if (!user) {
+            return res.status(404).send("Usuario no encontrado");
+        }
+
+
+
+        if (uploadedDocuments) {
+            if (uploadedDocuments.document) {
+                user.documents = user.documents.concat(uploadedDocuments.document.map(doc => ({
+                    name: doc.originalname,
+                    reference: doc.path
+                })))
+            }
+
+            if (uploadedDocuments.products) {
+                user.documents = user.documents.concat(uploadedDocuments.products.map(doc => ({
+                    name: doc.originalname,
+                    reference: doc.path
+                })))
+            }
+
+            if (uploadedDocuments.profile) {
+                user.documents = user.documents.concat(uploadedDocuments.profile.map(doc => ({
+                    name: doc.originalname,
+                    reference: doc.path
+                })))
+            }
+        }
+
+
+        await user.save();
+
+        res.status(200).send("Documentos cargados exitosamente");
     } catch (error) {
-        res.status(400).send({error:"Error al crear el usuario"});
+        console.log(error);
+        res.status(500).send("Error interno del servidor");
     }
 })
 
-module.exports = router; 
+
+
+module.exports = router;
