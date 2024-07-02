@@ -32,6 +32,30 @@ class UserRepository {
             throw error;
         }
     }
+
+    async updateUserRole(userId, newRole) {
+        try {
+            const user = await UserModel.findById(userId);
+
+            if (!user) {
+                throw new Error('Usuario no encontrado');
+            }
+
+            // Verificar si el usuario ha cargado los documentos requeridos
+            const requiredDocuments = ['Identificación', 'Comprobante de domicilio', 'Comprobante de estado de cuenta'];
+            const userDocuments = user.documents.map(doc => doc.name);
+
+            const hasRequiredDocuments = requiredDocuments.every(doc => userDocuments.includes(doc));
+
+            if (!hasRequiredDocuments) {
+                throw new Error('El usuario debe cargar los siguientes documentos: Identificación, Comprobante de domicilio, Comprobante de estado de cuenta');
+            }
+
+            return await UserModel.findByIdAndUpdate(userId, { role: newRole }, { new: true });
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = UserRepository;

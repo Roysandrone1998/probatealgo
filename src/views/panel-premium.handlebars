@@ -68,8 +68,6 @@
             event.target.reset();
         }
     });
-
-
     socket.on('productos', (productos) => {
 
         const productList = document.getElementById('userProductsList');
@@ -95,7 +93,6 @@
                 method: 'DELETE'
             });
             if (response.ok) {
-                
                 event.target.parentElement.parentElement.remove();
             }
         }
