@@ -4,6 +4,8 @@ const passport = require("passport");
 const UserController = require("../controller/user.controller.js");
 
 const userController = new UserController();
+const checkUserRole = require("../middleware/checkroles.js");
+
 
 router.post("/register", userController.register);
 router.post("/login", userController.login);
@@ -12,10 +14,18 @@ router.post("/logout", userController.logout.bind(userController));
 router.get("/admin", passport.authenticate("jwt", { session: false }), userController.admin);
 router.post("/requestPasswordReset", userController.requestPasswordReset); 
 router.post('/reset-password', userController.resetPassword);
+router.delete("/delete-inactive-users", passport.authenticate("jwt", { session: false }), checkUserRole(['admin']), userController.deleteInactiveUsers);
 
 
 router.put("/premium/:uid", userController.cambiarRolPremium);
-
+router.get('/admin/users', passport.authenticate('jwt', { session: false }), checkUserRole(['admin']), async (req, res) => {
+    try {
+        const users = await userRepository.findManyUsers({});
+        res.render('admin-users', { users });
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+});
 const UserRepository = require("../repositories/user.repository.js");
 const userRepository = new UserRepository();
 

@@ -32,6 +32,21 @@ class UserRepository {
             throw error;
         }
     }
+    async findManyUsers(query) {
+        try {
+            return await UserModel.find(query);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteUsers(query) {
+        try {
+            return await UserModel.deleteMany(query);
+        } catch (error) {
+            throw error;
+        }
+    }
 
     async updateUserRole(userId, newRole) {
         try {

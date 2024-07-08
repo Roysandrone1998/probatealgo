@@ -54,12 +54,13 @@
 	</form>
 
 	{{#if this.isAdmin}}
-	<a class="btnMios" href="/realtimeproducts">Modificar Productos</a>
-	{{else}}
-	{{#if this.isPremium}}
-	<a class="btnMios" href="/realtimeproducts">Panel Premium</a>
-	{{/if}}
-	<a class="btnMios" href="/chat">Chat en vivo</a>
-	<a class="btnMios" href="/products">Tienda</a>
-	{{/if}}
+    <a class="btnMios" href="/realtimeproducts">Modificar Productos</a>
+    <a class="btnMios" href="/admin/users">Administrar Usuarios</a>
+    {{else}}
+    {{#if this.isPremium}}
+    <a class="btnMios" href="/realtimeproducts">Panel Premium</a>
+    {{/if}}
+    <a class="btnMios" href="/chat">Chat en vivo</a>
+    <a class="btnMios" href="/products">Tienda</a>
+    {{/if}}
 </div>

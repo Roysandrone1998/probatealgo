@@ -4,10 +4,12 @@ const jwt = require("jsonwebtoken");
 const { createHash, isValidPassword } = require("../utils/hashbcryp.js");
 const UserDTO = require("../dto/user.dto.js");
 const { generateResetToken } = require("../utils/tokenreset.js");
+const MailingRepository = require("../repositories/mail.repository.js");
 
 // Repositorio de usuarios
 const UserRepository = require("../repositories/user.repository.js");
 const userRepository = new UserRepository();
+const mailingRepository = new MailingRepository();
 
 // Tercer Integradora: 
 const EmailManager = require("../services/email.js");
@@ -221,7 +223,26 @@ class UserController {
         }
     }
 
+    async deleteInactiveUsers(req, res) {
+        try {
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2); // O cambiar a -0.02 para 30 minutos
 
+            const query = { last_connection: { $lt: twoDaysAgo } };
+            const inactiveUsers = await userRepository.findManyUsers(query);
+
+            const result = await userRepository.deleteUsers(query);
+            await mailingRepository.sendInactiveDeletionEmails(inactiveUsers);
+
+            res.status(200).json({
+                message: "Usuarios inactivos borrados con éxito",
+                deletedCount: result.deletedCount,
+                deletedUsers: inactiveUsers
+            });
+        } catch (error) {
+            res.status(500).json({ error });
+        }
+    }
 
 }
 

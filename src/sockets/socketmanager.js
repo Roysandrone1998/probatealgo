@@ -1,7 +1,9 @@
 const socket = require("socket.io");
 const ProductRepository = require("../repositories/product.repository.js");
-const productRepository = new ProductRepository(); 
+const productRepository = new ProductRepository();
 const MessageModel = require("../models/message.model.js");
+const EmailManager = require("../services/email.js");
+const emailManager = new EmailManager();
 
 class SocketManager {
     constructor(httpServer) {
@@ -11,20 +13,40 @@ class SocketManager {
 
     async initSocketEvents() {
         this.io.on("connection", async (socket) => {
-            console.log("Un cliente se conectó");
-            
-            socket.emit("productos", await productRepository.obtenerProductos() );
+            console.log("Usuario conectado.");
 
-            socket.on("eliminarProducto", async (id) => {
-                await productRepository.eliminarProducto(id);
-                this.emitUpdatedProducts(socket);
+            // Emitir productos al cliente conectado
+            const productos = await productRepository.obtenerProductos();
+            socket.emit("products", productos.docs);
+
+            // Manejar la eliminación de productos
+            socket.on("deleteProduct", async ({ id, role }) => {
+                try {
+                    const product = await productRepository.obtenerProductoPorId(id);
+                    if (!product) {
+                        socket.emit("deleteProductError", { error: "Producto no encontrado" });
+                        return;
+                    }
+                    await productRepository.eliminarProducto(id);
+
+                    if (role === "admin" && product.owner !== "admin") {
+                        await emailManager.productDeleted(product.owner, product.title);
+                    }
+
+                    this.emitUpdatedProducts(socket);
+                } catch (error) {
+                    console.error(`Error al eliminar producto: ${error.message}`);
+                    socket.emit("deleteProductError", { error: "Error al eliminar producto" });
+                }
             });
 
-            socket.on("agregarProducto", async (producto) => {
+            // Manejar la creación de productos
+            socket.on("createProduct", async (producto) => {
                 await productRepository.agregarProducto(producto);
                 this.emitUpdatedProducts(socket);
             });
 
+            // Manejar los mensajes
             socket.on("message", async (data) => {
                 await MessageModel.create(data);
                 const messages = await MessageModel.find();
@@ -34,7 +56,8 @@ class SocketManager {
     }
 
     async emitUpdatedProducts(socket) {
-        socket.emit("productos", await productRepository.obtenerProductos());
+        const productos = await productRepository.obtenerProductos();
+        socket.emit("products", productos.docs);
     }
 }
 

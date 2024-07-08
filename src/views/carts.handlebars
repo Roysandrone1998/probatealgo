@@ -1,3 +1,4 @@
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 <h1 class="text-center">Carrito de Compras</h1>
 
 <div class="container">
@@ -19,6 +20,8 @@
 
 <form method="post" action="/api/carts/{{cartId}}/purchase">
     <button type="submit" class="btn btn-success">Finalizar Compra</button>
+    <button id="checkout-btn"> Comprar </button>
+    <div id="wallet-container"></div>
 </form>
 
 <script>

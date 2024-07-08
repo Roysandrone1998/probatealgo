@@ -9,6 +9,7 @@ const path = require('path');
 const PUERTO = 8080;
 require("./database.js");
 
+
 const productsRouter = require("./routes/products.router.js");
 const cartsRouter = require("./routes/carts.router.js");
 const viewsRouter = require("./routes/views.router.js");
@@ -50,5 +51,3 @@ const httpServer = app.listen(PUERTO, () => {
 ///Websockets: 
 const SocketManager = require("./sockets/socketmanager.js");
 new SocketManager(httpServer);
-
-

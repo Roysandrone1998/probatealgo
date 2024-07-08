@@ -2,25 +2,24 @@ const socket = io();
 const role = document.getElementById("role").textContent;
 const email = document.getElementById("email").textContent;
 
-socket.on("productos", (data) => {
+// Escuchar eventos de productos desde el servidor
+socket.on("products", (data) => {
     renderProductos(data);
-})
+});
 
-
-
+// Función para renderizar productos en el DOM
 const renderProductos = (productos) => {
     const contenedorProductos = document.getElementById("contenedorProductos");
     contenedorProductos.innerHTML = "";
 
-    productos.docs.forEach(item => {
+    productos.forEach(item => {
         const card = document.createElement("div");
         card.classList.add("card");
 
-        card.innerHTML = ` 
-                        <p> ${item.title} </p>
-                        <p> ${item.price} </p>
-                        <button> Eliminar </button>
-                        `;
+        card.innerHTML =  
+            `<p>${item.title}</p>
+            <p>${item.price}</p>
+            <button>Eliminar</button>`;
 
         contenedorProductos.appendChild(card);
         card.querySelector("button").addEventListener("click", () => {
@@ -30,30 +29,26 @@ const renderProductos = (productos) => {
                 eliminarProducto(item._id);
             } else {
                 Swal.fire({
-                    title: "Error",
-                    text: "No tenes permiso para borrar ese producto",
-                })
+                    title: "Acceso denegado",
+                    text: "No puedes eliminar un producto que no sea tuyo.",
+                });
             }
         });
-    })
+    });
 }
 
-
+// Función para eliminar un producto
 const eliminarProducto = (id) => {
-    socket.emit("eliminarProducto", id);
+    socket.emit("deleteProduct", { id, role });
 }
 
-
-
+// Manejar el evento de envío para agregar un producto
 document.getElementById("btnEnviar").addEventListener("click", () => {
     agregarProducto();
-})
+});
 
-
+// Función para agregar un producto
 const agregarProducto = () => {
-    const role = document.getElementById("role").textContent;
-    const email = document.getElementById("email").textContent;
-
     const owner = role === "premium" ? email : "admin";
 
     const producto = {
@@ -68,5 +63,5 @@ const agregarProducto = () => {
         owner
     };
 
-    socket.emit("agregarProducto", producto);
+    socket.emit("createProduct", producto);
 }

@@ -6,8 +6,8 @@ class EmailManager {
             service: 'gmail',
             port: 587,
             auth: {
-                user: "coderhouse50015@gmail.com",
-                pass: "norp renb afxw uxyq"
+                user: "raysandrone@gmail.com",
+                pass: "vwni ytfw ewwd ntlk"
             }
         });
     }
@@ -15,7 +15,7 @@ class EmailManager {
     async enviarCorreoCompra(email, first_name, ticket) {
         try {
             const mailOptions = {
-                from: "Coder Test <coderhouse50015@gmail.com>",
+                from: "Coder Test <raysandrone@gmail.com>",
                 to: email,
                 subject: 'Confirmación de compra',
                 html: `
@@ -34,7 +34,7 @@ class EmailManager {
     async enviarCorreoRestablecimiento(email, first_name, token) {
         try {
             const mailOptions = {
-                from: 'coderhouse50015@gmail.com',
+                from: 'raysandrone@gmail.com',
                 to: email,
                 subject: 'Restablecimiento de Contraseña',
                 html: `
