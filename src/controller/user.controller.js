@@ -223,27 +223,79 @@ class UserController {
         }
     }
 
-    async deleteInactiveUsers(req, res) {
-        try {
-            const twoDaysAgo = new Date();
-            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2); // O cambiar a -0.02 para 30 minutos
-
-            const query = { last_connection: { $lt: twoDaysAgo } };
-            const inactiveUsers = await userRepository.findManyUsers(query);
-
-            const result = await userRepository.deleteUsers(query);
-            await mailingRepository.sendInactiveDeletionEmails(inactiveUsers);
-
-            res.status(200).json({
-                message: "Usuarios inactivos borrados con éxito",
-                deletedCount: result.deletedCount,
-                deletedUsers: inactiveUsers
-            });
-        } catch (error) {
-            res.status(500).json({ error });
+        async getUsuarios(req, res) {
+            //traer todos los usuarios pero solo mostrar los datos como nombre, correo y rol
+            //primero traemos todos los usuarios
+            const usuarios = await UserModel.find({ role: "usuario" });
+            try {
+            if (!usuarios) {
+                console.log("no se pudo obtener usuarios");
+            }
+            console.log(usuarios);
+            //no olvidarse de que ada listado de objetos que traigamos desde mongo se debes ahcer un map()
+            const userss = usuarios.map((usuarios) => ({
+                first_name: usuarios.first_name,
+                last_name: usuarios.last_name,
+                email: usuarios.email,
+                role: usuarios.role,
+            }));
+        
+            res.render("users", { users: userss });
+            //una vez seteada la fecha voy a hacer un find con el parametro de busqueda de la fecha por que es estio? por que se genera la fecha actual de ahora mismo luego se le restan 30 minutos una vez echo esto, hacemos un $lt en elñ find que es un menor que y la fecha actual restada por 30 minutos
+        
+            //luego hacemos un await usuariosModel.deleeMany (let que tiene los usuarios que son 30 minutos a al fecha actual)
+        
+            //el problema aqui es de que manera activamos la funcion si ya esta iinactivo el usuario
+            } catch (err) {
+            console.log(err);
+            res.status(500).send("hubo un error en traer usuarios");
+            }
         }
-    }
-
+        async deleteUserinactividad(req, res) {
+            try {
+            const fecha = new Date();
+            console.log(fecha);
+        
+            const fechaRest = fecha.setMinutes(fecha.getMinutes() - 30);
+            console.log(fechaRest);
+        
+            const fechaDos = new Date(fechaRest);
+            console.log(fechaDos);
+        
+            const fechaSeteada = await UserModel.find({
+                last_connection: { $lt: fechaDos },
+            });
+            console.log(
+                "esto es la fecha seteada",
+                fechaSeteada,
+                "aqui termina la fecha seteada"
+            );
+            if (fechaSeteada.length === 0) {
+                console.log("no hay usuarios para borrar, esto viene de console.log");
+                return res.status(500).send("No hay usaurios para borrar lokoooooo");
+            }
+        
+            const cleaner = await UserModel.deleteMany({
+                last_connection: { $lt: fechaDos },
+            });
+            console.log(
+                "aqui empieza el cleaner",
+                cleaner,
+                "aqui termina el cleaner"
+            );
+        
+            //una vez seteada la fecha voy a hacer un find con el parametro de busqueda de la fecha por que es estio? por que se genera la fecha actual de ahora mismo luego se le restan 30 minutos una vez echo esto, hacemos un $lt en elñ find que es un menor que y la fecha actual restada por 30 minutos
+        
+            //luego hacemos un await usuariosModel.deleeMany (let que tiene los usuarios que son 30 minutos a al fecha actual)
+        
+            //el problema aqui es de que manera activamos la funcion si ya esta iinactivo el usuario
+            res.status(200).json(fechaSeteada);
+            } catch (error) {
+            console.log(error);
+            res.status(500).send("huo unn error al eliminar");
+            }
+        }
+        
 }
 
 module.exports = UserController;

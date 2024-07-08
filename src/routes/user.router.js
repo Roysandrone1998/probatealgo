@@ -14,8 +14,8 @@ router.post("/logout", userController.logout.bind(userController));
 router.get("/admin", passport.authenticate("jwt", { session: false }), userController.admin);
 router.post("/requestPasswordReset", userController.requestPasswordReset); 
 router.post('/reset-password', userController.resetPassword);
-router.delete("/delete-inactive-users", passport.authenticate("jwt", { session: false }), checkUserRole(['admin']), userController.deleteInactiveUsers);
-
+router.get("/", userController.getUsuarios);
+router.delete("/delete", userController.deleteUserinactividad);
 
 router.put("/premium/:uid", userController.cambiarRolPremium);
 router.get('/admin/users', passport.authenticate('jwt', { session: false }), checkUserRole(['admin']), async (req, res) => {
