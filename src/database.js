@@ -1,9 +1,6 @@
-
+require('dotenv').config();
 const mongoose = require("mongoose");
 
-
-
-mongoose.connect("mongodb+srv://roysandrone:Coder1@cluster0.ybo821i.mongodb.net/ecomerce?retryWrites=true&w=majority&appName=Cluster0")
-    .then(() => console.log("Conexion exitosa"))
-    .catch(() => console.log("Error en la conexion"))
-
+mongoose.connect(process.env.MONGO_URL)
+    .then( () => console.log("Conectado a la BD"))
+    .catch( (error) => console.log(error))

@@ -261,7 +261,7 @@ class UserController {
             res.status(200).json(fechaSeteada);
             } catch (error) {
             console.log(error);
-            res.status(500).send("huo unn error al eliminar");
+            res.status(500).send("hubo unn error al eliminar");
             }
         }
         

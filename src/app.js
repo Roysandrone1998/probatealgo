@@ -8,7 +8,7 @@ const cors = require("cors");
 const path = require('path');
 const PUERTO = 8080;
 require("./database.js");
-
+require('dotenv').config();
 
 const productsRouter = require("./routes/products.router.js");
 const cartsRouter = require("./routes/carts.router.js");
