@@ -67,7 +67,7 @@ class CartController {
     async actualizarProductosEnCarrito(req, res) {
         const cartId = req.params.cid;
         const updatedProducts = req.body;
-        // Debes enviar un arreglo de productos en el cuerpo de la solicitud
+
         try {
             const updatedCart = await cartRepository.actualizarProductosEnCarrito(cartId, updatedProducts);
             res.json(updatedCart);

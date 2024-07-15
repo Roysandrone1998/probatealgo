@@ -6,12 +6,10 @@ const UserDTO = require("../dto/user.dto.js");
 const { generateResetToken } = require("../utils/tokenreset.js");
 const MailingRepository = require("../repositories/mail.repository.js");
 
-// Repositorio de usuarios
 const UserRepository = require("../repositories/user.repository.js");
 const userRepository = new UserRepository();
 const mailingRepository = new MailingRepository();
 
-// Tercer Integradora: 
 const EmailManager = require("../services/email.js");
 const emailManager = new EmailManager();
 
@@ -24,7 +22,6 @@ class UserController {
                 return res.status(400).send("El usuario ya existe");
             }
 
-            // Creo un nuevo carrito: 
             const nuevoCarrito = new CartModel();
             await nuevoCarrito.save();
 
@@ -122,28 +119,24 @@ class UserController {
         res.render("admin");
     }
 
-    // Tercer integradora: 
     async requestPasswordReset(req, res) {
         const { email } = req.body;
 
         try {
-            // Buscar al usuario por su correo electrónico
+
             const user = await userRepository.findByEmail(email);
             if (!user) {
                 return res.status(404).send("Usuario no encontrado");
             }
 
-            // Generar un token 
             const token = generateResetToken();
 
-            // Guardar el token en el usuario
             user.resetToken = {
                 token: token,
-                expiresAt: new Date(Date.now() + 3600000) // 1 hora de duración
+                expiresAt: new Date(Date.now() + 3600000) 
             };
             await userRepository.save(user);
 
-            // Enviar correo electrónico con el enlace de restablecimiento utilizando EmailService
             await emailManager.enviarCorreoRestablecimiento(email, user.first_name, token);
 
             res.redirect("/confirmacion-envio");
@@ -157,36 +150,31 @@ class UserController {
         const { email, password, token } = req.body;
 
         try {
-            // Buscar al usuario por su correo electrónico
+
             const user = await userRepository.findByEmail(email);
             if (!user) {
                 return res.render("passwordcambio", { error: "Usuario no encontrado" });
             }
 
-            // Obtener el token de restablecimiento de la contraseña del usuario
             const resetToken = user.resetToken;
             if (!resetToken || resetToken.token !== token) {
                 return res.render("passwordreset", { error: "El token de restablecimiento de contraseña es inválido" });
             }
 
-            // Verificar si el token ha expirado
             const now = new Date();
             if (now > resetToken.expiresAt) {
-                // Redirigir a la página de generación de nuevo correo de restablecimiento
+
                 return res.redirect("/passwordcambio");
             }
 
-            // Verificar si la nueva contraseña es igual a la anterior
             if (isValidPassword(password, user)) {
                 return res.render("passwordcambio", { error: "La nueva contraseña no puede ser igual a la anterior" });
             }
-
-            // Actualizar la contraseña del usuario
             user.password = createHash(password);
-            user.resetToken = undefined; // Marcar el token como utilizado
+            user.resetToken = undefined; 
             await userRepository.save(user);
 
-            // Renderizar la vista de confirmación de cambio de contraseña
+
             return res.redirect("/login");
         } catch (error) {
             console.error(error);
@@ -203,7 +191,6 @@ class UserController {
                 return res.status(404).send("Usuario no encontrado");
             }
 
-            // Verificamos si el usuario tiene la documentacion requerida: 
             const documentacionRequerida = ["Identificacion", "Comprobante de domicilio", "Comprobante de estado de cuenta"];
 
             const userDocuments = user.documents.map(doc => doc.name);
@@ -224,15 +211,13 @@ class UserController {
     }
 
         async getUsuarios(req, res) {
-            //traer todos los usuarios pero solo mostrar los datos como nombre, correo y rol
-            //primero traemos todos los usuarios
             const usuarios = await UserModel.find({ role: "usuario" });
             try {
             if (!usuarios) {
                 console.log("no se pudo obtener usuarios");
             }
             console.log(usuarios);
-            //no olvidarse de que ada listado de objetos que traigamos desde mongo se debes ahcer un map()
+
             const userss = usuarios.map((usuarios) => ({
                 first_name: usuarios.first_name,
                 last_name: usuarios.last_name,
@@ -241,11 +226,6 @@ class UserController {
             }));
         
             res.render("users", { users: userss });
-            //una vez seteada la fecha voy a hacer un find con el parametro de busqueda de la fecha por que es estio? por que se genera la fecha actual de ahora mismo luego se le restan 30 minutos una vez echo esto, hacemos un $lt en elñ find que es un menor que y la fecha actual restada por 30 minutos
-        
-            //luego hacemos un await usuariosModel.deleeMany (let que tiene los usuarios que son 30 minutos a al fecha actual)
-        
-            //el problema aqui es de que manera activamos la funcion si ya esta iinactivo el usuario
             } catch (err) {
             console.log(err);
             res.status(500).send("hubo un error en traer usuarios");
@@ -265,14 +245,9 @@ class UserController {
             const fechaSeteada = await UserModel.find({
                 last_connection: { $lt: fechaDos },
             });
-            console.log(
-                "esto es la fecha seteada",
-                fechaSeteada,
-                "aqui termina la fecha seteada"
-            );
             if (fechaSeteada.length === 0) {
                 console.log("no hay usuarios para borrar, esto viene de console.log");
-                return res.status(500).send("No hay usaurios para borrar lokoooooo");
+                return res.status(500).send("No hay usaurios para borrar");
             }
         
             const cleaner = await UserModel.deleteMany({
@@ -283,12 +258,6 @@ class UserController {
                 cleaner,
                 "aqui termina el cleaner"
             );
-        
-            //una vez seteada la fecha voy a hacer un find con el parametro de busqueda de la fecha por que es estio? por que se genera la fecha actual de ahora mismo luego se le restan 30 minutos una vez echo esto, hacemos un $lt en elñ find que es un menor que y la fecha actual restada por 30 minutos
-        
-            //luego hacemos un await usuariosModel.deleeMany (let que tiene los usuarios que son 30 minutos a al fecha actual)
-        
-            //el problema aqui es de que manera activamos la funcion si ya esta iinactivo el usuario
             res.status(200).json(fechaSeteada);
             } catch (error) {
             console.log(error);

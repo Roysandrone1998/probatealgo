@@ -52,19 +52,15 @@
 	<form action="/api/users/logout" method="POST">
 		<button class="btnMios" type="submit">Logout</button>
 	</form>
-	<a class="btnMios" href="/api/users">Traer usuarios existentes</a>
 
 	{{#if this.isAdmin}}
-	<a class="btnMios" href="/realtimeproducts">Modificar Productos</a>
-	<a class="btnMios" href="/api/users">Limpieza de usuarios inactivos</a> 
-
-	{{else}}
-	{{#if this.isPremium}}
-	<a class="btnMios" href="/realtimeproducts">Panel Premium</a>
-	{{/if}}
-	<a class="btnMios" href="/chat">Chat en vivo</a>
-	<a class="btnMios" href="/products">Tienda</a>
-	<a class="btnMios" href="/api/users/requestAdmin">Quieres ser admin?</a>
-
-	{{/if}}
+    <a class="btnMios" href="/realtimeproducts">Modificar Productos</a>
+    <a class="btnMios" href="/api/users">Administrar Usuarios</a>
+    {{else}}
+    {{#if this.isPremium}}
+    <a class="btnMios" href="/realtimeproducts">Panel Premium</a>
+    {{/if}}
+    <a class="btnMios" href="/chat">Chat en vivo</a>
+    <a class="btnMios" href="/products">Tienda</a>
+    {{/if}}
 </div>

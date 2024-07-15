@@ -9,6 +9,7 @@ body {
 
 .tamLogo {
     width: 250px;
+    margin-left: 550px;
 }
 
 .fuentesNav {
@@ -139,4 +140,9 @@ i {
 
 .formulario span {
     font-weight: bold;
+}
+.carousel-inner img {
+    width: 100%; /* Esto asegura que las imágenes ocupen el ancho completo del contenedor */
+    height: 600px; /* Cambia este valor a la altura que desees */
+    object-fit: cover; /* Esto asegura que las imágenes se ajusten correctamente sin deformarse */
 }

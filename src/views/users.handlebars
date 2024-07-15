@@ -1,12 +1,15 @@
 <h1>Administración de Usuarios</h1>
 
-<ul>
+<div class="row">
     {{#each users }}
-    <li>nombre:{{first_name}}</li>
-    <li>apellido:{{last_name}} </li>
-    <li>correo:{{email}} </li>
-    <li>rol:{{role}} </li>
-    <br>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{first_name}} {{last_name}}</h5>
+                <p class="card-text">Correo: {{email}}</p>
+                <p class="card-text">Rol: {{role}}</p>
+            </div>
+        </div>
+    </div>
     {{/each}}
-
-</ul>
+</div>
